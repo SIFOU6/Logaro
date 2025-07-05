@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لعبة المستذئب</title>
+  <script src="https://unpkg.com/lucide @latest"></script>
+  <script src="https://cdn.tailwindcss.com "></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .animate-pulse {
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+  <div id="app" class="hidden"></div>
+
+  <!-- الصفحة الرئيسية -->
+  <div id="page-1" class="page active">
+    <div class="max-w-md mx-auto">
+      <div class="text-center mb-8 pt-16">
+        <div class="text-6xl mb-4">🐺</div>
+        <h1 class="text-4xl font-bold text-white mb-2">لعبة المستذئب</h1>
+        <p class="text-purple-200">Loup Garou</p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20">
+        <h2 class="text-2xl font-bold text-white text-center mb-8">كم عدد اللاعبين؟</h2>
+        <div class="space-y-6">
+          <input
+            type="number"
+            id="player-count"
+            min="4"
+            max="20"
+            placeholder="أدخل عدد اللاعبين"
+            class="w-full px-6 py-4 text-xl text-center bg-white/20 border-2 border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:border-white/60 focus:bg-white/30"
+          />
+          <button
+            onclick="goToPage(2)"
+            disabled
+            id="next-btn-1"
+            class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 px-6 rounded-2xl font-bold text-xl shadow-lg transform transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50"
+          >
+            التالي
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- صفحة إعداد الأدوار -->
+  <div id="page-2" class="page hidden">
+    <div class="max-w-2xl mx-auto">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-white mb-2">إعداد الأدوار</h1>
+        <p class="text-purple-200">عدد اللاعبين: <span id="display-player-count">-</span></p>
+        <p class="text-purple-200">الأدوار المختارة: <span id="total-roles">0</span></p>
+      </div>
+      <div id="roles-list" class="space-y-4 mb-6"></div>
+      <button
+        onclick="showAddRoleModal()"
+        class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 px-6 rounded-2xl font-bold shadow-lg transform transition-all duration-200 hover:scale-105 mb-4"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline ml-2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إضافة دور
+      </button>
+      <div class="flex space-x-reverse space-x-4">
+        <button
+          onclick="goToPage(1)"
+          class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-2xl font-bold shadow-lg transform transition-all duration-200 hover:scale-105"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline ml-2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          رجوع
+        </button>
+        <button
+          onclick="goToPage(3)"
+          disabled
+          id="next-btn-2"
+          class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:from-gray-600 disabled:to-gray-700 text-white py-3 px-6 rounded-2xl font-bold shadow-lg transform transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50"
+        >
+          التالي
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- صفحة إدخال أسماء اللاعبين -->
+  <div id="page-3" class="page hidden">
+    <div class="max-w-md mx-auto">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-white mb-2">أسماء اللاعبين</h1>
+        <p class="text-purple-200">اللاعب <span id="current-player-index">1</span> من <span id="total-player-count">-</span></p>
+      </div>
+      <div class="bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 mb-6">
+        <div class="space-y-6">
+          <div>
+            <label class="block text-lg font-medium text-white mb-2">اسم اللاعب</label>
+            <input
+              type="text"
+              id="current-player-name"
+              class="w-full px-4 py-3 text-lg bg-white/20 border-2 border-white/30 rounded-2xl text-white placeholder-white/60 focus:outline-none focus:border-white/60 focus:bg-white/30"
+              placeholder="أدخل اسم اللاعب"
+            />
+          </div>
+          <button
+            onclick="assignRandomRole()"
+            disabled
+            id="assign-role-btn"
+            class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-600 disabled:to-gray-700 text-white py-4 px-6 rounded-2xl font-bold text-xl shadow-lg transform transition-all duration-200 hover:scale-105 disabled:scale-100 disabled:opacity-50"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline ml-2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            🎲 ما هو دوره؟
+          </button>
+        </div>
+      </div>
+
+      <!-- بطاقة الدور -->
+      <div id="role-card" class="hidden bg-white/10 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border border-white/20 mb-6 animate-pulse">
+        <div class="text-center">
+          <div id="role-color" class="w-24 h-24 mx-auto rounded-full flex items-center justify-center text-4xl shadow-2xl mb-4"></div>
+          <h2 id="role-name" class="text-3xl font-bold text-white mb-2"></h2>
+          <p id="role-team" class="text-xl text-purple-200 mb-6"></p>
+          <button
+            onclick="confirmPlayer()"
+            class="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-4 px-6 rounded-2xl font-bold text-xl shadow-lg transform transition-all duration-200 hover:scale-105"
+          >
+            تأكيد
+          </button>
+        </div>
+      </div>
+
+      <div class="flex space-x-reverse space-x-4">
+        <button
+          onclick="goToPage(2)"
+          class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-2xl font-bold shadow-lg transform transition-all duration-200 hover:scale-105"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline ml-2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          رجوع
+        </button>
+        <button
+          onclick="goToPage(4)"
+          id="go-results-btn"
+          class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 px-6 rounded-2xl font-bold shadow-lg transform transition-all duration-200 hover:scale-105 hidden"
+        >
+          النتائج
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline mr-2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- صفحة ملخص اللعبة -->
+  <div id="page-4" class="page hidden">
+    <div class="max-w-2xl mx-auto">
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-bold text-white mb-2">ملخص اللعبة</h1>
+        <div class="flex justify-center space-x-reverse space-x-8 text-lg">
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span class="text-white font-bold">الأخيار: <span id="good-team-count">0</span></span>
+          </div>
+          <div class="flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2"><path d="M12 22s-8-4-8-10V5l8-3 8 3v7c0 6-8 10-8 10z"/></svg>
+            <span class="text-white font-bold">الأشرار: <span id="evil-team-count">0</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- المستذئبون -->
+      <div id="wolves-section" class="hidden bg-red-900/30 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-red-500/30 mb-6">
+        <h2 class="text-2xl font-bold text-red-300 mb-4 text-center">🐺 المستذئبون</h2>
+        <div id="wolves-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- جميع اللاعبين -->
+      <div class="bg-white/10 backdrop-blur-lg rounded-2xl p-6 shadow-lg border border-white/20 mb-6">
+        <h2 class="text-2xl font-bold text-white mb-4 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline ml-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          جميع اللاعبين
+        </h2>
+        <div id="all-players-list" class="space-y-3"></div>
+      </div>
+
+      <div class="flex space-x-reverse space-x-4">
+        <button
+          onclick="goToPage(3)"
+          class="flex-1 bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-2xl font-bold shadow-lg transform transition-all duration-200 hover:scale-105"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline ml-2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          رجوع
+        </button>
+        <button
+          onclick="resetGame()"
+          class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 px-6 rounded-2xl font-bold shadow-lg transform transition-all duration-200 hover:scale-105"
+        >
+          لعبة جديدة
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال تعديل الدور -->
+  <div id="edit-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl">
+      <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">تعديل الدور</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">اسم الدور</label>
+          <input id="edit-name" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">الإيموجي</label>
+          <input id="edit-emoji" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">اللون</label>
+          <input id="edit-color" type="color" class="w-full h-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">الفريق</label>
+          <select id="edit-team" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option value="الأخيار">الأخيار</option>
+            <option value="الأشرار">الأشرار</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex space-x-reverse space-x-4 mt-6">
+        <button onclick="hideEditModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-xl font-medium">إلغاء</button>
+        <button onclick="saveEditedRole()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-xl font-medium">حفظ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- مودال إضافة دور -->
+  <div id="add-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+    <div class="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl">
+      <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">إضافة دور جديد</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">اسم الدور</label>
+          <input id="new-name" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="مثال: الطبيب" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">الإيموجي</label>
+          <input id="new-emoji" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="مثال: 👨‍⚕️" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">اللون</label>
+          <input id="new-color" type="color" class="w-full h-12 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">الفريق</label>
+          <select id="new-team" class="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500">
+            <option value="الأخيار">الأخيار</option>
+            <option value="الأشرار">الأشرار</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex space-x-reverse space-x-4 mt-6">
+        <button onclick="hideAddRoleModal()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 px-4 rounded-xl font-medium">إلغاء</button>
+        <button onclick="addNewRole()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl font-medium">إضافة</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // تفعيل الأيقونات
+    lucide.createIcons();
+
+    const playerCountInput = document.getElementById("player-count");
+    const nextBtn1 = document.getElementById("next-btn-1");
+    const nextBtn2 = document.getElementById("next-btn-2");
+
+    let currentPage = 1;
+    let roles = [
+      { id: 1, name: "المستذئب", emoji: "🐺", color: "#dc2626", team: "الأشرار", count: 0 },
+      { id: 2, name: "العراف", emoji: "🔮", color: "#7c3aed", team: "الأخيار", count: 0 },
+      { id: 3, name: "الحارس", emoji: "🛡️", color: "#059669", team: "الأخيار", count: 0 },
+      { id: 4, name: "القروي", emoji: "👨‍🌾", color: "#d97706", team: "الأخيار", count: 0 },
+      { id: 5, name: "الساحرة", emoji: "🧙‍♀️", color: "#7c2d12", team: "الأخيار", count: 0 },
+      { id: 6, name: "الصياد", emoji: "🏹", color: "#374151", team: "الأخيار", count: 0 }
+    ];
+    let editingRole = null;
+    let players = [];
+    let currentPlayerIndex = 0;
+    let currentPlayerName = "";
+    let selectedRole = null;
+
+    function goToPage(pageNumber) {
+      document.querySelectorAll(".page").forEach(p => p.classList.add("hidden"));
+      document.getElementById(`page-${pageNumber}`).classList.remove("hidden");
+      currentPage = pageNumber;
+
+      if (pageNumber === 2) {
+        updateRolesUI();
+        updateTotalRolesDisplay();
+      } else if (pageNumber === 3) {
+        resetPlayerForm();
+      } else if (pageNumber === 4) {
+        showResults();
+      }
+    }
+
+    playerCountInput.addEventListener("input", () => {
+      const val = parseInt(playerCountInput.value);
+      nextBtn1.disabled = !val || val < 4 || val > 20;
+      document.getElementById("display-player-count").textContent = val;
+    });
+
+    function updateRolesUI() {
+      const container = document.getElementById("roles-list");
+      container.innerHTML = "";
+
+      roles.forEach(role => {
+        const roleDiv = document.createElement("div");
+        roleDiv.className = "bg-white/10 backdrop-blur-lg rounded-2xl p-4 shadow-lg border border-white/20";
+        roleDiv.innerHTML = `
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-reverse space-x-4">
+              <div style="background-color:${role.color}" class="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg">${role.emoji}</div>
+              <div>
+                <h3 class="text-lg font-bold text-white">${role.name}</h3>
+                <p class="text-sm text-purple-200">${role.team}</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-reverse space-x-3">
+              <button onclick="updateRoleCount(${role.id}, -1)" class="w-8 h-8 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transform transition-all duration-200 hover:scale-110">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <span class="text-xl font-bold text-white min-w-8 text-center">${role.count}</span>
+              <button onclick="updateRoleCount(${role.id}, 1)" class="w-8 h-8 bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg transform transition-all duration-200 hover:scale-110">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <button onclick="handleEditRole(${role.id})" class="w-8 h-8 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transform transition-all duration-200 hover:scale-110">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(roleDiv);
+      });
+    }
+
+    function updateRoleCount(id, change) {
+      const role = roles.find(r => r.id === id);
+      if (role) {
+        role.count = Math.max(0, role.count + change);
+        updateTotalRolesDisplay();
+        checkProceedButton();
+      }
+    }
+
+    function updateTotalRolesDisplay() {
+      const total = roles.reduce((sum, r) => sum + r.count, 0);
+      document.getElementById("total-roles").textContent = total;
+    }
+
+    function checkProceedButton() {
+      const total = roles.reduce((sum, r) => sum + r.count, 0);
+      nextBtn2.disabled = total !== parseInt(playerCountInput.value);
+    }
+
+    function handleEditRole(id) {
+      editingRole = JSON.parse(JSON.stringify(roles.find(r => r.id === id)));
+      document.getElementById("edit-name").value = editingRole.name;
+      document.getElementById("edit-emoji").value = editingRole.emoji;
+      document.getElementById("edit-color").value = editingRole.color;
+      document.getElementById("edit-team").value = editingRole.team;
+      document.getElementById("edit-modal").classList.remove("hidden");
+    }
+
+    function saveEditedRole() {
+      const index = roles.findIndex(r => r.id === editingRole.id);
+      if (index !== -1) {
+        roles[index].name = document.getElementById("edit-name").value;
+        roles[index].emoji = document.getElementById("edit-emoji").value;
+        roles[index].color = document.getElementById("edit-color").value;
+        roles[index].team = document.getElementById("edit-team").value;
+        updateRolesUI();
+      }
+      hideEditModal();
+    }
+
+    function hideEditModal() {
+      document.getElementById("edit-modal").classList.add("hidden");
+    }
+
+    function showAddRoleModal() {
+      document.getElementById("new-name").value = "";
+      document.getElementById("new-emoji").value = "";
+      document.getElementById("new-color").value = "#3b82f6";
+      document.getElementById("new-team").value = "الأخيار";
+      document.getElementById("add-modal").classList.remove("hidden");
+    }
+
+    function hideAddRoleModal() {
+      document.getElementById("add-modal").classList.add("hidden");
+    }
+
+    function addNewRole() {
+      const name = document.getElementById("new-name").value.trim();
+      const emoji = document.getElementById("new-emoji").value.trim();
+      if (!name || !emoji) return;
+
+      const newId = Math.max(...roles.map(r => r.id)) + 1;
+      const newRole = {
+        id: newId,
+        name,
+        emoji,
+        color: document.getElementById("new-color").value,
+        team: document.getElementById("new-team").value,
+        count: 0
+      };
+      roles.push(newRole);
+      updateRolesUI();
+      hideAddRoleModal();
+    }
+
+    function resetPlayerForm() {
+      currentPlayerIndex = 0;
+      players = [];
+      currentPlayerName = "";
+      document.getElementById("current-player-name").value = "";
+      document.getElementById("assign-role-btn").disabled = true;
+      document.getElementById("go-results-btn").classList.add("hidden");
+      document.getElementById("current-player-index").textContent = 1;
+      document.getElementById("total-player-count").textContent = playerCountInput.value;
+    }
+
+    document.getElementById("current-player-name").addEventListener("input", e => {
+      currentPlayerName = e.target.value;
+      document.getElementById("assign-role-btn").disabled = !currentPlayerName.trim();
+    });
+
+    function assignRandomRole() {
+      if (!currentPlayerName.trim()) return;
+
+      const availableRoles = [];
+      roles.forEach(role => {
+        for (let i = 0; i < role.count; i++) {
+          availableRoles.push(role);
+        }
+      });
+
+      const assignedRoles = players.map(p => p.role.id);
+      const remainingRoles = availableRoles.filter(role => {
+        const assignedCount = assignedRoles.filter(id => id === role.id).length;
+        return assignedCount < role.count;
+      });
+
+      if (remainingRoles.length === 0) return;
+
+      selectedRole = remainingRoles[Math.floor(Math.random() * remainingRoles.length)];
+      document.getElementById("role-color").textContent = selectedRole.emoji;
+      document.getElementById("role-color").style.backgroundColor = selectedRole.color;
+      document.getElementById("role-name").textContent = selectedRole.name;
+      document.getElementById("role-team").textContent = selectedRole.team;
+      document.getElementById("role-card").classList.remove("hidden");
+    }
+
+    function confirmPlayer() {
+      if (!selectedRole || !currentPlayerName.trim()) return;
+
+      players.push({
+        name: currentPlayerName,
+        role: selectedRole
+      });
+
+      currentPlayerIndex++;
+      document.getElementById("current-player-index").textContent = currentPlayerIndex + 1;
+
+      if (currentPlayerIndex >= parseInt(playerCountInput.value)) {
+        document.getElementById("go-results-btn").classList.remove("hidden");
+      }
+
+      currentPlayerName = "";
+      selectedRole = null;
+      document.getElementById("current-player-name").value = "";
+      document.getElementById("assign-role-btn").disabled = true;
+      document.getElementById("role-card").classList.add("hidden");
+    }
+
+    function showResults() {
+      const goodTeam = players.filter(p => p.role.team === "الأخيار").length;
+      const evilTeam = players.filter(p => p.role.team === "الأشرار").length;
+      const wolves = players.filter(p => p.role.name === "المستذئب");
+
+      document.getElementById("good-team-count").textContent = goodTeam;
+      document.getElementById("evil-team-count").textContent = evilTeam;
+
+      const wolfList = document.getElementById("wolves-list");
+      wolfList.innerHTML = "";
+      const wolfSection = document.getElementById("wolves-section");
+      wolfSection.classList.toggle("hidden", wolves.length === 0);
+
+      wolves.forEach(player => {
+        const div = document.createElement("div");
+        div.className = "bg-red-800/50 rounded-xl p-4 flex items-center space-x-reverse space-x-3";
+        div.innerHTML = `
+          <div style="background-color:${player.role.color}" class="w-12 h-12 rounded-full flex items-center justify-center text-2xl">${player.role.emoji}</div>
+          <div>
+            <p class="text-white font-bold">${player.name}</p>
+            <p class="text-red-200 text-sm">${player.role.name}</p>
+          </div>
+        `;
+        wolfList.appendChild(div);
+      });
+
+      const allPlayersList = document.getElementById("all-players-list");
+      allPlayersList.innerHTML = "";
+
+      players.forEach(player => {
+        const div = document.createElement("div");
+        div.className = "bg-white/10 rounded-xl p-4 flex items-center justify-between";
+        div.innerHTML = `
+          <div class="flex items-center space-x-reverse space-x-3">
+            <div style="background-color:${player.role.color}" class="w-12 h-12 rounded-full flex items-center justify-center text-2xl shadow-lg">${player.role.emoji}</div>
+            <div>
+              <p class="text-white font-bold">${player.name}</p>
+              <p class="text-purple-200 text-sm">${player.role.name}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="px-3 py-1 rounded-full text-sm font-medium ${player.role.team === 'الأخيار' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'}">${player.role.team}</span>
+          </div>
+        `;
+        allPlayersList.appendChild(div);
+      });
+    }
+
+    function resetGame() {
+      playerCountInput.value = "";
+      nextBtn1.disabled = true;
+      roles.forEach(r => r.count = 0);
+      updateRolesUI();
+      updateTotalRolesDisplay();
+      goToPage(1);
+    }
+
+    // أول تشغيل
+    window.onload = () => {
+      document.getElementById("app").classList.remove("hidden");
+      goToPage(1);
+    };
+  </script>
+</body>
+</html>
